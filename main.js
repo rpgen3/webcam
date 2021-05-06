@@ -50,7 +50,7 @@ const updateTime = rpgen3.addSelect(h,{
         2000
     ],
     value: 100
-})
+});
 $("<h3>").appendTo(h).text("<canvas>");
 const cv = $("<canvas>").appendTo(h).attr({width, height}).get(0),
       ctx = cv.getContext('2d');
