@@ -30,9 +30,7 @@ const getStream = () => navigator.mediaDevices.getUserMedia({
 $("<button>").appendTo(h).text("カメラの許可").on("click", async()=>{
     try {
         const stream = await getStream();
-        video = $("<video>").appendTo(hVideo).attr({
-            autoplay: true
-        }).get(0);
+        const video = makeVideo();
         video.srcObject = stream;
 
     } catch (err) {
@@ -51,13 +49,16 @@ $("<button>").appendTo(h).text("再生").on("click", () => REC.play());
 $("<button>").appendTo(h).text("保存").on("click", ()=>{
     const b = mode === Photo;
     $("<a>").attr({
-        href: b ? img.attr("src") : video.src,
+        href: b ? img.attr("src") : hVideo.find("video").attr("src"),
         download: b ? 'webcam.png' : 'webcam.webm'
     }).get(0).click();
 });
 $("<h3>").appendTo(h).text("<video>");
 const hVideo = $("<div>").appendTo(h);
-let video;
+const makeVideo = isMuted => $("<video>").appendTo(hVideo.empty()).attr({
+    autoplay: true,
+    muted: isMuted
+}).get(0);
 const updateTime = rpgen3.addSelect(h,{
     title: "canvas描画間隔[ms]",
     list: [
@@ -74,6 +75,7 @@ const updateTime = rpgen3.addSelect(h,{
 const cv = $("<canvas>")/*.appendTo(h)*/.attr({width, height}).get(0),
       ctx = cv.getContext('2d');
 (function update(){
+    const video = hVideo.find("video").get(0);
     $(cv).attr({
         width: video.videoWidth,
         height: video.videoHeight
@@ -88,10 +90,7 @@ const REC = (()=>{
             blobs = [];
             try {
                 const stream = await getStream();
-                video = $("<video>").appendTo(hVideo).attr({
-                    autoplay: true,
-                    muted: true
-                }).get(0);
+                const video = makeVideo(true);
                 video.srcObject = stream;
                 mREC = new MediaRecorder(stream, {
                     mimeType: "video/webm;codecs=vp9"
@@ -110,10 +109,9 @@ const REC = (()=>{
             mode = Video;
         },
         play: ()=>{
-            video.srcObject = null;
+            const video = makeVideo();
             video.src = blobURL;
             video.controls = true;
-            video.play();
         }
     }
 })();
