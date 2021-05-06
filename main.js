@@ -31,22 +31,34 @@ $("<button>").appendTo(h).text("カメラの許可").on("click",()=>{
 });
 $("<button>").appendTo(h).text("撮影").on("click",()=>{
     $("<a>").attr({
-        herf: cv.toDataURL('image/png',),
-        download: 'download.png'
+        href: cv.toDataURL('image/png'),
+        download: 'webcam.png'
     }).get(0).click();
 });
 $("<h3>").appendTo(h).text("<video>");
 const video = $("<video>").appendTo(h).attr({
     autoplay: true
 }).get(0);
+const updateTime = rpgen3.addSelect(h,{
+    title: "canvas描画間隔[ms]",
+    list: [
+        0,
+        10,
+        100,
+        500,
+        1000,
+        2000
+    ],
+    value: 100
+})
 $("<h3>").appendTo(h).text("<canvas>");
 const cv = $("<canvas>").appendTo(h).attr({width, height}).get(0),
       ctx = cv.getContext('2d');
-function update(){
+(function update(){
     $(cv).attr({
         width: video.videoWidth,
         height: video.videoHeight
     });
     ctx.drawImage(video, 0, 0);
-}
-setInterval(update);
+    setTimeout(update, updateTime());
+})();
