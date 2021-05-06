@@ -76,6 +76,7 @@ const cv = $("<canvas>")/*.appendTo(h)*/.attr({width, height}).get(0),
       ctx = cv.getContext('2d');
 (function update(){
     const video = hVideo.find("video").get(0);
+    if(!video) return;
     $(cv).attr({
         width: video.videoWidth,
         height: video.videoHeight
