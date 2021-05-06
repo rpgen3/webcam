@@ -40,17 +40,13 @@ $("<button>").appendTo(h).text("カメラの許可").on("click", async()=>{
         return msg(err, true);
     }
     disabled(false);
+    resizeCv();
 });
 $("<button>").appendTo(h).text("撮影").on("click",()=>{
-    const video = hVideo.find("video").get(0);
-    $(cv).attr({
-        width: video.videoWidth,
-        height: video.videoHeight
-    });
     img.attr("src", cv.toDataURL('image/png'));
     mode = Photo;
 });
-rpgen3.addInputBool(h,{
+const isNowREC = rpgen3.addInputBool(h,{
     title: "録画",
     change: v => !isLoaded ? null : REC[v ? 'start' : 'stop']()
 });
@@ -81,6 +77,12 @@ const updateTime = rpgen3.addSelect(h,{
 });
 const cv = $("<canvas>").attr({width, height}).get(0),
       ctx = cv.getContext('2d');
+function resizeCv(video){
+    $(cv).attr({
+        width: video.videoWidth,
+        height: video.videoHeight
+    });
+}
 (function update(){
     const video = hVideo.find("video").get(0);
     if(video) ctx.drawImage(video, 0, 0);
@@ -105,6 +107,7 @@ const REC = (()=>{
                 return msg(err, true);
             }
             disabled(false);
+            resizeCv();
             mREC.ondataavailable = () => event.data && event.data.size > 0 ? blobs.push(event.data) : null;
             mREC.start(Number(updateTime()));
         },
@@ -116,6 +119,8 @@ const REC = (()=>{
             mode = Video;
         },
         play: ()=>{
+            if(isNowREC()) return msg("録画中です", true);
+            else msg("録画を再生します");
             const video = makeVideo();
             video.src = blobURL;
             video.controls = true;
