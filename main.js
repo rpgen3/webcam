@@ -34,10 +34,10 @@ $("<button>").appendTo(h).text("カメラの許可").on("click", async()=>{
         });
         video.srcObject = stream;
         video.muted = true;
-        $(cv).attr({
+        setTimeout(()=>$(cv).attr({
             width: video.videoWidth,
             height: video.videoHeight
-        });
+        }),500);
     } catch (err) {
         disabled(false);
         return msg(err, true);
@@ -67,23 +67,11 @@ $("<h3>").appendTo(h).text("<video>");
 const makeVideo = () => $("<video>").appendTo(h).attr({ autoplay: true }).get(0),
       video = makeVideo(),
       videoREC = makeVideo();
-const updateTime = rpgen3.addSelect(h,{
-    title: "canvas描画間隔[ms]",
-    list: [
-        0,
-        10,
-        100,
-        500,
-        1000,
-        2000
-    ],
-    value: 100
-});
 const cv = $("<canvas>").attr({width, height}).get(0),
       ctx = cv.getContext('2d');
 (function update(){
     ctx.drawImage(video, 0, 0);
-    setTimeout(update, updateTime());
+    setTimeout(update, 10);
 })();
 const REC = (()=>{
     let blobs, mREC, blobURL;
@@ -94,7 +82,7 @@ const REC = (()=>{
                 mimeType: "video/webm;codecs=vp9"
             });
             mREC.ondataavailable = () => event.data && event.data.size > 0 ? blobs.push(event.data) : null;
-            mREC.start(Number(updateTime()));
+            mREC.start(10);
         },
         stop: ()=>{
             mREC.stop();
