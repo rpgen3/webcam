@@ -23,25 +23,21 @@ const {width, height} = {
     height: 480,
 };
 let stream;
-const getStream = () => {
-    stream = navigator.mediaDevices.getUserMedia({
-        width, height,
-        video: isFront() ? "user" : {facingMode: "environment"},
-        audio: true
-    });
-    video.srcObject = stream;
-    video.muted = true;
-    $(cv).attr({
-        width: video.videoWidth,
-        height: video.videoHeight
-    });
-};
 const disabled = b => $("button").attr("disabled",b);
 $("<button>").appendTo(h).text("カメラの許可").on("click", async()=>{
     disabled(true);
     try {
-        await getStream();
-
+        stream = await navigator.mediaDevices.getUserMedia({
+            width, height,
+            video: isFront() ? "user" : {facingMode: "environment"},
+            audio: true
+        });
+        video.srcObject = stream;
+        video.muted = true;
+        $(cv).attr({
+            width: video.videoWidth,
+            height: video.videoHeight
+        });
     } catch (err) {
         disabled(false);
         return msg(err, true);
@@ -55,7 +51,8 @@ $("<button>").appendTo(h).text("撮影").on("click",()=>{
 const isNowREC = rpgen3.addInputBool(h,{
     title: "録画",
     change: v => {
-        if(isLoaded) REC[v ? 'start' : 'stop']();
+        if(!isLoaded || !stream) return false;
+        REC[v ? 'start' : 'stop']();
     }
 });
 $("<button>").appendTo(h).text("再生").on("click", () => REC.play());
@@ -91,18 +88,11 @@ const cv = $("<canvas>").attr({width, height}).get(0),
 const REC = (()=>{
     let blobs, mREC, blobURL;
     return {
-        start: async()=>{
-            disabled(true);
+        start: ()=>{
             blobs = [];
-            try {
-                mREC = new MediaRecorder(stream, {
-                    mimeType: "video/webm;codecs=vp9"
-                });
-            } catch (err) {
-                disabled(false);
-                return msg(err, true);
-            }
-            disabled(false);
+            mREC = new MediaRecorder(stream, {
+                mimeType: "video/webm;codecs=vp9"
+            });
             mREC.ondataavailable = () => event.data && event.data.size > 0 ? blobs.push(event.data) : null;
             mREC.start(Number(updateTime()));
         },
