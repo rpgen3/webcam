@@ -22,19 +22,25 @@ const {width, height} = {
     width: 640,
     height: 480,
 };
-const getStream = () => navigator.mediaDevices.getUserMedia({
-    width, height,
-    video: isFront() ? "user" : {facingMode: "environment"},
-    audio: true
-});
+let stream;
+const getStream = () => {
+    stream = navigator.mediaDevices.getUserMedia({
+        width, height,
+        video: isFront() ? "user" : {facingMode: "environment"},
+        audio: true
+    });
+    video.srcObject = stream;
+    video.muted = true;
+    $(cv).attr({
+        width: video.videoWidth,
+        height: video.videoHeight
+    });
+};
 const disabled = b => $("button").attr("disabled",b);
 $("<button>").appendTo(h).text("カメラの許可").on("click", async()=>{
     disabled(true);
     try {
-        const stream = await getStream();
-        const video = makeVideo();
-        video.srcObject = stream;
-        resizeCv(video);
+        await getStream();
 
     } catch (err) {
         disabled(false);
@@ -56,15 +62,14 @@ $("<button>").appendTo(h).text("再生").on("click", () => REC.play());
 $("<button>").appendTo(h).text("保存").on("click", ()=>{
     const b = mode === Photo;
     $("<a>").attr({
-        href: b ? img.attr("src") : hVideo.find("video").attr("src"),
+        href: b ? img.attr("src") : videoREC.src,
         download: b ? 'webcam.png' : 'webcam.webm'
     }).get(0).click();
 });
 $("<h3>").appendTo(h).text("<video>");
-const hVideo = $("<div>").appendTo(h);
-const makeVideo = () => $("<video>").appendTo(hVideo.empty()).attr({
-    autoplay: true
-}).get(0);
+const makeVideo = () => $("<video>").appendTo(h).attr({ autoplay: true }).get(0),
+      video = makeVideo(),
+      videoREC = makeVideo();
 const updateTime = rpgen3.addSelect(h,{
     title: "canvas描画間隔[ms]",
     list: [
@@ -79,15 +84,8 @@ const updateTime = rpgen3.addSelect(h,{
 });
 const cv = $("<canvas>").attr({width, height}).get(0),
       ctx = cv.getContext('2d');
-function resizeCv(video){
-    $(cv).attr({
-        width: video.videoWidth,
-        height: video.videoHeight
-    });
-}
 (function update(){
-    const video = hVideo.find("video").get(0);
-    if(video) ctx.drawImage(video, 0, 0);
+    ctx.drawImage(video, 0, 0);
     setTimeout(update, updateTime());
 })();
 const REC = (()=>{
@@ -97,11 +95,6 @@ const REC = (()=>{
             disabled(true);
             blobs = [];
             try {
-                const stream = await getStream();
-                const video = makeVideo();
-                video.srcObject = stream;
-                resizeCv(video);
-                video.muted = true;
                 mREC = new MediaRecorder(stream, {
                     mimeType: "video/webm;codecs=vp9"
                 });
@@ -123,9 +116,8 @@ const REC = (()=>{
         play: ()=>{
             if(isNowREC()) return msg("録画中です", true);
             else msg("録画を再生します");
-            const video = makeVideo();
-            video.src = blobURL;
-            video.controls = true;
+            videoREC.src = blobURL;
+            videoREC.controls = true;
         }
     }
 })();
