@@ -27,17 +27,26 @@ const getStream = () => navigator.mediaDevices.getUserMedia({
     video: isFront() ? "user" : {facingMode: "environment"},
     audio: true
 });
+const disabled = b => $("button").attr("disabled",b);
 $("<button>").appendTo(h).text("カメラの許可").on("click", async()=>{
+    disabled(true);
     try {
         const stream = await getStream();
         const video = makeVideo();
         video.srcObject = stream;
 
     } catch (err) {
+        disabled(false);
         return msg(err, true);
     }
+    disabled(false);
 });
 $("<button>").appendTo(h).text("撮影").on("click",()=>{
+    const video = hVideo.find("video").get(0);
+    $(cv).attr({
+        width: video.videoWidth,
+        height: video.videoHeight
+    });
     img.attr("src", cv.toDataURL('image/png'));
     mode = Photo;
 });
@@ -74,19 +83,14 @@ const cv = $("<canvas>").attr({width, height}).get(0),
       ctx = cv.getContext('2d');
 (function update(){
     const video = hVideo.find("video").get(0);
-    if(video) {
-        $(cv).attr({
-            width: video.videoWidth,
-            height: video.videoHeight
-        });
-        ctx.drawImage(video, 0, 0);
-    }
+    if(video) ctx.drawImage(video, 0, 0);
     setTimeout(update, updateTime());
 })();
 const REC = (()=>{
     let blobs, mREC, blobURL;
     return {
         start: async()=>{
+            disabled(true);
             blobs = [];
             try {
                 const stream = await getStream();
@@ -97,8 +101,10 @@ const REC = (()=>{
                     mimeType: "video/webm;codecs=vp9"
                 });
             } catch (err) {
+                disabled(false);
                 return msg(err, true);
             }
+            disabled(false);
             mREC.ondataavailable = () => event.data && event.data.size > 0 ? blobs.push(event.data) : null;
             mREC.start(Number(updateTime()));
         },
