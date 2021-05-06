@@ -40,10 +40,10 @@ const video = $("<video>").appendTo(h).attr({
     autoplay: true
 }).get(0);
 $("<h3>").appendTo(h).text("<canvas>");
-const cv = $("<canvas>").appendTo(h).attr({width, height}),
-      ctx = cv.get(0).getContext('2d');
+const cv = $("<canvas>").appendTo(h).attr({width, height}).get(0),
+      ctx = cv.getContext('2d');
 function update(){
-    cv.attr({
+    $(cv).attr({
         width: video.videoWidth,
         height: video.videoHeight
     });
