@@ -70,17 +70,17 @@ const updateTime = rpgen3.addSelect(h,{
     ],
     value: 100
 });
-// $("<h3>").appendTo(h).text("<canvas>");
-const cv = $("<canvas>")/*.appendTo(h)*/.attr({width, height}).get(0),
+const cv = $("<canvas>").attr({width, height}).get(0),
       ctx = cv.getContext('2d');
 (function update(){
     const video = hVideo.find("video").get(0);
-    if(!video) return;
-    $(cv).attr({
-        width: video.videoWidth,
-        height: video.videoHeight
-    });
-    ctx.drawImage(video, 0, 0);
+    if(video) {
+        $(cv).attr({
+            width: video.videoWidth,
+            height: video.videoHeight
+        });
+        ctx.drawImage(video, 0, 0);
+    }
     setTimeout(update, updateTime());
 })();
 const REC = (()=>{
