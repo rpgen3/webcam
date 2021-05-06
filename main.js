@@ -55,9 +55,8 @@ $("<button>").appendTo(h).text("保存").on("click", ()=>{
 });
 $("<h3>").appendTo(h).text("<video>");
 const hVideo = $("<div>").appendTo(h);
-const makeVideo = isMuted => $("<video>").appendTo(hVideo.empty()).attr({
-    autoplay: true,
-    muted: isMuted
+const makeVideo = () => $("<video>").appendTo(hVideo.empty()).attr({
+    autoplay: true
 }).get(0);
 const updateTime = rpgen3.addSelect(h,{
     title: "canvas描画間隔[ms]",
@@ -91,8 +90,9 @@ const REC = (()=>{
             blobs = [];
             try {
                 const stream = await getStream();
-                const video = makeVideo(true);
+                const video = makeVideo();
                 video.srcObject = stream;
+                video.muted = true;
                 mREC = new MediaRecorder(stream, {
                     mimeType: "video/webm;codecs=vp9"
                 });
