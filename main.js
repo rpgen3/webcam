@@ -34,13 +34,13 @@ $("<button>").appendTo(h).text("カメラの許可").on("click", async()=>{
         const stream = await getStream();
         const video = makeVideo();
         video.srcObject = stream;
+        resizeCv(video);
 
     } catch (err) {
         disabled(false);
         return msg(err, true);
     }
     disabled(false);
-    resizeCv();
 });
 $("<button>").appendTo(h).text("撮影").on("click",()=>{
     img.attr("src", cv.toDataURL('image/png'));
@@ -100,6 +100,7 @@ const REC = (()=>{
                 const stream = await getStream();
                 const video = makeVideo();
                 video.srcObject = stream;
+                resizeCv(video);
                 video.muted = true;
                 mREC = new MediaRecorder(stream, {
                     mimeType: "video/webm;codecs=vp9"
@@ -109,7 +110,6 @@ const REC = (()=>{
                 return msg(err, true);
             }
             disabled(false);
-            resizeCv();
             mREC.ondataavailable = () => event.data && event.data.size > 0 ? blobs.push(event.data) : null;
             mREC.start(Number(updateTime()));
         },
