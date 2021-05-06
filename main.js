@@ -48,7 +48,9 @@ $("<button>").appendTo(h).text("撮影").on("click",()=>{
 });
 const isNowREC = rpgen3.addInputBool(h,{
     title: "録画",
-    change: v => !isLoaded ? null : REC[v ? 'start' : 'stop']()
+    change: v => {
+        if(isLoaded) REC[v ? 'start' : 'stop']();
+    }
 });
 $("<button>").appendTo(h).text("再生").on("click", () => REC.play());
 $("<button>").appendTo(h).text("保存").on("click", ()=>{
