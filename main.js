@@ -85,5 +85,5 @@ const REC = (()=>{
     }
 })();
 $("<h3>").appendTo(h).text("<img>");
-const img = $("<img>").appendTo(h).get(0);
+const img = $("<img>").appendTo($("<div>").appendTo(h)).get(0);
 $("<button>").appendTo(h).text("画像を保存").on("click",()=>DL(img.src, 'webcam.png'));
