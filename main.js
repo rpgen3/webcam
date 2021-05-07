@@ -49,7 +49,7 @@ const isNowREC = rpgen3.addInputBool(h,{
 $("<button>").appendTo(h).text("再生").on("click", () => REC.play());
 const DL = (href, download) => $("<a>").attr({ href, download }).get(0).click();
 $("<h3>").appendTo(h).text("<video>");
-const makeVideo = () => $("<video>").appendTo(h).attr({ autoplay: true }).get(0),
+const makeVideo = () => $("<video>").appendTo($("<div>").appendTo(h).addClass("wrapper")).attr({ autoplay: true }).get(0),
       video = makeVideo(),
       videoREC = makeVideo();
 $("<button>").appendTo(h).text("動画を保存").on("click",()=>DL(videoREC.src, 'webcam.webm'));
